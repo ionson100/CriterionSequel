@@ -98,7 +98,7 @@ namespace CriterionMore
             var s = HttpContext.Current.Request.Form[NameType];
             if (s == null) return null;
             var exp =
-                 MapCriterion<T>.GetExpressions<T>(new FormCollection(HttpContext.Current.Request.Form));
+                 MapCriterion<T>.GetExpressions(new FormCollection(HttpContext.Current.Request.Form));
             return exp;
         }
 
@@ -112,7 +112,7 @@ namespace CriterionMore
         {
        
             var exp =
-                 MapCriterion<T>.GetExpressions<T>(collection);
+                 MapCriterion<T>.GetExpressions(collection);
             return exp;
         }
 

@@ -85,22 +85,6 @@ namespace CriterionMore
             return tt == null ? "" : string.Format("#{0}#", tt);
         }
 
-        private static Type GetType(string typeName, Type type)
-        {
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
-                .Where(p => type.IsAssignableFrom(type) && String.Equals(p.Name, typeName, StringComparison.InvariantCultureIgnoreCase));
-
-
-            var res = types.SingleOrDefault();
-            if (res != null)
-            {
-                return res;
-            }
-            throw new Exception(string.Format(" В строке шаблона: <include>{0}</include> тип потключения ({0}) не найден, как наследник типа:{1}", typeName, type.Name));
-
-
-
-        }
 
         /// <summary>
         /// Получение грязной разметки замещая включения
@@ -111,7 +95,7 @@ namespace CriterionMore
 
         internal static string InnerHtmlPageDirty(string pathTemplate, Type type)
         {
-            string htmlpatch = null;
+            string htmlpatch;
             try
             {
                 htmlpatch = File.ReadAllText(pathTemplate);
@@ -121,18 +105,6 @@ namespace CriterionMore
                 throw new Exception("Возможно не правильно указан url путь к шаблону  а атрибуте CriterionTemplateAttribute у типа:" + type.Name + " - " + ex);
             }
 
-            var include = new Regex(@"<include>(.*)</include>");
-            var incl = include.Matches(htmlpatch);
-
-            for (var i = 0; i < incl.Count; i++)
-            {
-                var text = incl[i].Groups[1].Value;
-                if (string.IsNullOrWhiteSpace(text)) continue;
-                Type basetype = GetType(text, type);
-                var str = incl[i].Groups[0].Value;
-                //var rrr = basetype.GetBaseMapCriterion().GetHtmlPageDirty();
-                //htmlpatch = htmlpatch.Replace(str, rrr);
-            }
             return htmlpatch;
 
         }
@@ -593,7 +565,7 @@ namespace CriterionMore
         /// <param name="collection">Колекция форм с клиента</param>
         /// <typeparam name="T">Тип объекта запроса</typeparam>
         /// <returns>Expression выражение</returns>
-        internal static Expression<Func<T, bool>> GetExpressions<T>(FormCollection collection)
+        internal static Expression<Func<T, bool>> GetExpressions(FormCollection collection)
         {
             Expression<Func<T, bool>> expr = null;
             var dict = Validate(collection, BaseAttributes.Value);
@@ -748,7 +720,7 @@ namespace CriterionMore
 
         private static Dictionary<string, List<object>> Validate(FormCollection collection, List<CriterionBaseAttribute> baseAttributes)
         {
-            var varObjects = new Dictionary<string, List<object>>();
+            var varDict = new Dictionary<string, List<object>>();
             foreach (var str in collection.Keys)
             {
                 var list = new List<object>();
@@ -765,7 +737,7 @@ namespace CriterionMore
                     var instans = Activator.CreateInstance(((CriterionMyControlAttribute)myatr).MyType);
                     ((IMyType)instans).Validate(val, (CriterionMyControlAttribute)myatr);
                     list.Add(val);
-                    varObjects.Add(str.ToString(), list);
+                    varDict.Add(str.ToString(), list);
                     continue;
                 }
 
@@ -781,7 +753,7 @@ namespace CriterionMore
                 if (type == typeof(string))
                 {
                     list.AddRange(val.Split(','));
-                    varObjects.Add(str.ToString(), list);
+                    varDict.Add(str.ToString(), list);
                     continue;
                 }
                 var o = Activator.CreateInstance(type);
@@ -819,9 +791,9 @@ namespace CriterionMore
                     }
 
                 }
-                varObjects.Add(str.ToString(), list);
+                varDict.Add(str.ToString(), list);
             }
-            return varObjects;
+            return varDict;
         }
         /// <summary>
         /// Добавляет иконку с вопросительным знаком, при наличии постващика для справки
