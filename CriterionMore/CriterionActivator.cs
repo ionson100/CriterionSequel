@@ -37,14 +37,13 @@ namespace CriterionMore
         /// Получение HTML разметки шаблонного показа, шаблон назначается через атрибут CriterionTemplateAttribute
         /// </summary>
         /// <param name="helper"></param>
-        /// <param name="type">Тип для запроса</param>
         /// <returns></returns>
-        public static MvcHtmlString CriterionHtmlTemplate(this HtmlHelper helper, Type type)
+        public static string CriterionHtmlTemplate<T>(this HtmlHelper helper)
         {
             ActiveUrl(helper);
 
-            var res = type.GetBaseMapCriterion().RenderingPartPage();
-            return MvcHtmlString.Create(res);
+            var res = MapCriterion<T>.RenderingPartPage();
+            return res;// MvcHtmlString.Create(res);
         }
 
         /// <summary>
@@ -52,14 +51,13 @@ namespace CriterionMore
         /// </summary>
         /// <param name="helper"></param>
         /// <param name="nameTemplate">url шаблона</param>
-        /// <param name="type">Тип для запроса</param>
         /// <returns></returns>
-        public static MvcHtmlString CriterionHtmlTemplate(this HtmlHelper helper, string nameTemplate, Type type)
+        public static string CriterionHtmlTemplate<T>(this HtmlHelper helper, string nameTemplate)
         {
             ActiveUrl(helper);
 
-            var res = type.GetBaseMapCriterion().RenderingPartPage(nameTemplate);
-            return MvcHtmlString.Create(res);
+            var res = MapCriterion<T>.RenderingPartPage(nameTemplate);
+            return res; //MvcHtmlString.Create(res);
         }
 
 
@@ -76,15 +74,15 @@ namespace CriterionMore
 
             string name = GetNamePropery(expression);
 
-            var basemap = typeof(T).GetBaseMapCriterion();
-            var dirtyHtml = basemap.GetIdHtml(name);
+          
+            var dirtyHtml = MapCriterion<T>.GetIdHtml(name);
 
-            var res = basemap.RenderingPartViewRazor(helper, dirtyHtml);
+            var res = MapCriterion<T>.RenderingPartViewRazor(helper, dirtyHtml);
             var key = helper.ViewData["assa312312assa"];
             if (key == null)
             {
                 res= String.Concat(res, String.Format("<script type=\"text/javascript\">{0}</script>", Resources.Base));
-                res = MapCriterion.AddinHtml(res, typeof (T));
+                res = MapCriterion<T>.AddinHtml(res, typeof(T));
                 helper.ViewData["assa312312assa"] = 1;
             }
             return res;
@@ -100,7 +98,7 @@ namespace CriterionMore
             var s = HttpContext.Current.Request.Form[NameType];
             if (s == null) return null;
             var exp =
-                typeof(T).GetBaseMapCriterion().GetExpressions<T>(new FormCollection(HttpContext.Current.Request.Form));
+                 MapCriterion<T>.GetExpressions<T>(new FormCollection(HttpContext.Current.Request.Form));
             return exp;
         }
 
@@ -114,7 +112,7 @@ namespace CriterionMore
         {
        
             var exp =
-                typeof(T).GetBaseMapCriterion().GetExpressions<T>(collection);
+                 MapCriterion<T>.GetExpressions<T>(collection);
             return exp;
         }
 
@@ -148,18 +146,6 @@ namespace CriterionMore
         {
             TypeHelp = type;
         }
-        /// <summary>
-        /// Получение объекта:MapCriterion, привязанного к типу ( расширение Type)
-        /// </summary>
-        /// <param name="t">Тип привязки</param>
-        /// <returns>MapCriterion</returns>
-        public static MapCriterion GetBaseMapCriterion(this Type t)
-        {
-            var res = CriterionCache.GetBaseMap(t);
-            if (res != null) return res;
-            var cr = new MapCriterion(t);
-            CriterionCache.Add(t, cr);
-            return cr;
-        }
+       
     }
 }

@@ -64,7 +64,6 @@
     <Compile Include="Attributes\CriterionRadioButtonAttribute.cs" />
     <Compile Include="Attributes\CriterionSliderAttribute.cs" />
     <Compile Include="Attributes\CriterionTemplateAttribute.cs" />
-    <Compile Include="Criterion.cs" />
     <Compile Include="CriterionActivator.cs" />
     <Compile Include="HelpController.cs" />
     <Compile Include="IMyType.cs" />

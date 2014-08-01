@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using CriterionMore.Attributes;
@@ -32,25 +33,55 @@ namespace CriterionMore
     /// <summary>
     /// Тип, объект которого глобально привязывается к целевому типу
     /// </summary>
-    public sealed class MapCriterion
+    public static class MapCriterion<T>
     {
-        private readonly List<CriterionBaseAttribute> _baseAttributes = new List<CriterionBaseAttribute>();
-        //  List<CriterionHeadAttribute> _criterionHeadAttributes = new List<CriterionHeadAttribute>();
-        private readonly List<GroupItem> _itemsNameList = new List<GroupItem>();
+        private static readonly Lazy<List<CriterionBaseAttribute>> BaseAttributes = new Lazy<List<CriterionBaseAttribute>>(
+            () =>
+            {
+                var list = new List<CriterionBaseAttribute>();
+                foreach (var propertyInfo in typeof(T).GetProperties())
+                {
+                    var htmlAttributes = propertyInfo.GetCustomAttributes(typeof(CriterionHtmlAttributeAttribute), true);
+                    var i = propertyInfo.GetCustomAttributes(typeof(CriterionBaseAttribute), true);
+                    if (!i.Any()) continue;
+                    var ii = (CriterionBaseAttribute)i.Single();
+                    if (string.IsNullOrWhiteSpace(ii.Id))
+                    {
+                        ii.Id = propertyInfo.Name.ToLower();
+                    }
+                    ii.PropertyInfo = propertyInfo;
 
-        private readonly Type _type;
+                    if (htmlAttributes.Any())
+                    {
+                        ii.HtmlAttributes.AddRange(htmlAttributes.Cast<CriterionHtmlAttributeAttribute>());
+                    }
+                    list.Add(ii);
 
-        private readonly string _htmlPageDirty;
-        private string PathTemplate { get; set; }
 
-        string GetHtmlPageDirty()
+                }
+                return list;
+            }, LazyThreadSafetyMode.PublicationOnly);
+       
+        private static Lazy<List<GroupItem>> ItemsNameList = new Lazy<List<GroupItem>>(() => PathTemplate == null ? null : InnerTenplateList(HtmlPageDirty.Value, typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        //private readonly Type _type;
+
+        private static Lazy<string> HtmlPageDirty = new Lazy<string>(() => PathTemplate == null ? "" : InnerHtmlPageDirty(PathTemplate.Value, typeof(T)), LazyThreadSafetyMode.PublicationOnly
+            );
+
+
+
+
+        private static readonly Lazy<string> PathTemplate = new Lazy<string>(() =>
+                                                                    {
+                                                                        var t = typeof(T).GetCustomAttributes(typeof(CriterionTemplateAttribute), false);
+                                                                        return t.Any() ? HttpContext.Current.Server.MapPath(((CriterionTemplateAttribute)t.Single()).Url) : string.Empty;
+                                                                    }, LazyThreadSafetyMode.PublicationOnly);
+
+
+
+        internal static string GetIdHtml(string properyName)
         {
-            return _htmlPageDirty;
-        }
-
-        internal string GetIdHtml(string properyName)
-        {
-            var tt = _baseAttributes.Where(a => a.PropertyInfo.Name == properyName).Select(s => s.Id).SingleOrDefault();
+            var tt = BaseAttributes.Value.Where(a => a.PropertyInfo.Name == properyName).Select(s => s.Id).SingleOrDefault();
             return tt == null ? "" : string.Format("#{0}#", tt);
         }
 
@@ -60,8 +91,8 @@ namespace CriterionMore
                 .Where(p => type.IsAssignableFrom(type) && String.Equals(p.Name, typeName, StringComparison.InvariantCultureIgnoreCase));
 
 
-            var res= types.SingleOrDefault();
-            if (res!=null)
+            var res = types.SingleOrDefault();
+            if (res != null)
             {
                 return res;
             }
@@ -87,9 +118,9 @@ namespace CriterionMore
             }
             catch (Exception ex)
             {
-                throw new Exception("Возможно не правильно указан url путь к шаблону  а атрибуте CriterionTemplateAttribute у типа:"+type.Name +" - "+ex);
+                throw new Exception("Возможно не правильно указан url путь к шаблону  а атрибуте CriterionTemplateAttribute у типа:" + type.Name + " - " + ex);
             }
-            
+
             var include = new Regex(@"<include>(.*)</include>");
             var incl = include.Matches(htmlpatch);
 
@@ -99,56 +130,14 @@ namespace CriterionMore
                 if (string.IsNullOrWhiteSpace(text)) continue;
                 Type basetype = GetType(text, type);
                 var str = incl[i].Groups[0].Value;
-                var rrr = basetype.GetBaseMapCriterion().GetHtmlPageDirty();
-                htmlpatch = htmlpatch.Replace(str, rrr);
+                //var rrr = basetype.GetBaseMapCriterion().GetHtmlPageDirty();
+                //htmlpatch = htmlpatch.Replace(str, rrr);
             }
             return htmlpatch;
 
         }
 
-        /// <summary>
-        /// Конструктор
-        /// </summary>
-        /// <param name="type">Тип, к кторому будет привязан созданный объект</param>
-        /// <exception cref="Exception"></exception>
-        internal MapCriterion(Type type)
-        {
-            _type = type;
-            foreach (var propertyInfo in type.GetProperties())
-            {
-                var htmlAttributes = propertyInfo.GetCustomAttributes(typeof(CriterionHtmlAttributeAttribute), true);
-                var i = propertyInfo.GetCustomAttributes(typeof(CriterionBaseAttribute), true);
-                if (!i.Any()) continue;
-                var ii = (CriterionBaseAttribute)i.Single();
-                if (string.IsNullOrWhiteSpace(ii.Id))
-                {
-                    ii.Id = propertyInfo.Name.ToLower();
-                }
-                ii.PropertyInfo = propertyInfo;
 
-                if (htmlAttributes.Any())
-                {
-                    ii.HtmlAttributes.AddRange(htmlAttributes.Cast<CriterionHtmlAttributeAttribute>());
-                }
-                _baseAttributes.Add(ii);
-
-
-            }
-            var t = type.GetCustomAttributes(typeof(CriterionTemplateAttribute), false);
-
-            if (t.Any())
-            {
-                PathTemplate = HttpContext.Current.Server.MapPath(((CriterionTemplateAttribute)t.Single()).Url);
-            }
-            //else
-            //{
-            //    throw new Exception(string.Format("Для типа {0} не определен атрибут CriterionTemplateAttribute с шаблоном", type.Name));
-            //}
-
-
-            _htmlPageDirty = PathTemplate==null?"": InnerHtmlPageDirty(PathTemplate, _type);
-            _itemsNameList = PathTemplate == null ? null : InnerTenplateList(_htmlPageDirty, _type);
-        }
 
 
         private static List<GroupItem> InnerTenplateList(string htmlDirti, Type type)
@@ -162,7 +151,7 @@ namespace CriterionMore
                 {
                     throw new ArgumentException(string.Format("В шаблоне: {0} типа,  оказались дублирующие значения: {1}", type.FullName, val));
                 }
-               
+
                 list.Add(new GroupItem(val.ToLower(), items[i].Groups[0].Value));
             }
             return list;
@@ -173,17 +162,17 @@ namespace CriterionMore
         /// </summary>
         /// <param name="urlTemplate">при urlTemplate = null, разметка берется из атрибута CriterionTemplate типа </param>
         /// <returns></returns>
-        internal string RenderingPartPage(string urlTemplate = null)
+        internal static string RenderingPartPage(string urlTemplate = null)
         {
             if (string.IsNullOrWhiteSpace(urlTemplate))
             {
-                return InnerRenderingPartPage(_htmlPageDirty, _baseAttributes, _itemsNameList, _type,false);
+                return InnerRenderingPartPage(HtmlPageDirty.Value, BaseAttributes.Value, ItemsNameList.Value, typeof(T), false);
             }
 
             var path = HttpContext.Current.Server.MapPath(urlTemplate);
-            var htmlPageDirty = InnerHtmlPageDirty(path, _type);
-            var itemsNameList = InnerTenplateList(htmlPageDirty, _type);
-            return InnerRenderingPartPage(htmlPageDirty, _baseAttributes, itemsNameList, _type,false);
+            var htmlPageDirty = InnerHtmlPageDirty(path, typeof(T));
+            var itemsNameList = InnerTenplateList(htmlPageDirty, typeof(T));
+            return InnerRenderingPartPage(htmlPageDirty, BaseAttributes.Value, itemsNameList, typeof(T), false);
         }
 
         /// <summary>
@@ -192,10 +181,10 @@ namespace CriterionMore
         /// <param name="helper"></param>
         /// <param name="htmlPageDirty">Грязная разметка для замещения</param>
         /// <returns></returns>
-        internal  string RenderingPartViewRazor(HtmlHelper helper, string htmlPageDirty)
+        internal static string RenderingPartViewRazor(HtmlHelper helper, string htmlPageDirty)
         {
-            var itemsNameList = InnerTenplateList(htmlPageDirty, _type);
-            return InnerRenderingPartPage(htmlPageDirty, _baseAttributes, itemsNameList, _type,true);
+            var itemsNameList = InnerTenplateList(htmlPageDirty, typeof(T));
+            return InnerRenderingPartPage(htmlPageDirty, BaseAttributes.Value, itemsNameList, typeof(T), true);
         }
 
 
@@ -204,7 +193,7 @@ namespace CriterionMore
         private static string InnerRenderingPartPage(string htmlPageDirty, List<CriterionBaseAttribute> baseAttributes, IEnumerable<GroupItem> itemsNameList, Type type, bool isOne)
         {
             if (itemsNameList == null)
-            { 
+            {
                 throw new Exception(string.Format("ВОЗМОЖНО: для типа {0} не определен атрибут CriterionTemplateAttribute  с url шаблоном", type.Name));
             }
             var res = htmlPageDirty;
@@ -263,7 +252,7 @@ namespace CriterionMore
                     res = res.Replace(text.LastName, str);
                 }
             }
-            if (isOne==false)
+            if (isOne == false)
             {
                 res = RenameScripts(res);
 
@@ -303,7 +292,7 @@ namespace CriterionMore
 
 
 
-#region рендеринг по атрибуту
+        #region рендеринг по атрибуту
         private static string RenderinMyControl(CriterionMyControlAttribute atr, string formValue)
         {
             if (atr.MyType == null)
@@ -575,7 +564,7 @@ namespace CriterionMore
 
         }
 
-#endregion
+        #endregion
 
 
         private static string GetValueForOptions(ICollection<string> selectorlist, bool isSelected, string value, string pattern)
@@ -604,15 +593,15 @@ namespace CriterionMore
         /// <param name="collection">Колекция форм с клиента</param>
         /// <typeparam name="T">Тип объекта запроса</typeparam>
         /// <returns>Expression выражение</returns>
-        internal Expression<Func<T, bool>> GetExpressions<T>(FormCollection collection)
+        internal static Expression<Func<T, bool>> GetExpressions<T>(FormCollection collection)
         {
             Expression<Func<T, bool>> expr = null;
-            var dict = Validate(collection, _baseAttributes);
+            var dict = Validate(collection, BaseAttributes.Value);
 
             foreach (var kv in dict)
             {
 
-                var tt = _baseAttributes.Single(a => a.Id == kv.Key);
+                var tt = BaseAttributes.Value.Single(a => a.Id == kv.Key);
 
                 if (tt as CriterionAutoCompleteAttribute != null)
                 {
@@ -780,7 +769,7 @@ namespace CriterionMore
                     continue;
                 }
 
-                Debug.WriteLine("__________________________"+str+"_________"+val);
+                Debug.WriteLine("__________________________" + str + "_________" + val);
 
                 var type = myatr.PropertyInfo.PropertyType;
 
@@ -804,7 +793,7 @@ namespace CriterionMore
                         type.GetGenericArguments()[0].IsValueType && Nullable.GetUnderlyingType(type) != null)
                     {
                         if (string.IsNullOrWhiteSpace(s1)) continue;
-                        if ( s1.ToLower() == "null")//string.IsNullOrWhiteSpace(s1) ||
+                        if (s1.ToLower() == "null")//string.IsNullOrWhiteSpace(s1) ||
                         {
                             list.Add(null);
                             continue;
@@ -819,7 +808,7 @@ namespace CriterionMore
                     else
                     {
                         if (string.IsNullOrWhiteSpace(s1)) continue;
-                        if ( s1.ToLower() == "null")//string.IsNullOrWhiteSpace(s1) ||
+                        if (s1.ToLower() == "null")//string.IsNullOrWhiteSpace(s1) ||
                         {
                             list.Add(null);
                             continue;
