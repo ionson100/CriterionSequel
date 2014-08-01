@@ -6,7 +6,7 @@ namespace CriterionMore
     /// <summary>
     /// Рисширение для конкатенации выражений
     /// </summary>
-    internal static class PredicateBuilderExpression
+    internal static class BuilderExpression
     {
 
         public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> a, Expression<Func<T, bool>> b)
@@ -17,7 +17,7 @@ namespace CriterionMore
 
             ParameterExpression p = a.Parameters[0];
 
-            SubstExpressionVisitor visitor = new SubstExpressionVisitor();
+            var visitor = new SubstExpressionVisitor();
             visitor.Subst[b.Parameters[0]] = p;
 
             Expression body = Expression.AndAlso(a.Body, visitor.Visit(b.Body));

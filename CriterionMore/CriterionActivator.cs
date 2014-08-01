@@ -38,12 +38,12 @@ namespace CriterionMore
         /// </summary>
         /// <param name="helper"></param>
         /// <returns></returns>
-        public static string CriterionHtmlTemplate<T>(this HtmlHelper helper)
+        public static MvcHtmlString CriterionHtmlTemplate<T>(this HtmlHelper helper) where T : class
         {
             ActiveUrl(helper);
 
             var res = MapCriterion<T>.RenderingPartPage();
-            return res;// MvcHtmlString.Create(res);
+            return  MvcHtmlString.Create(res);
         }
 
         /// <summary>
@@ -52,12 +52,12 @@ namespace CriterionMore
         /// <param name="helper"></param>
         /// <param name="nameTemplate">url шаблона</param>
         /// <returns></returns>
-        public static string CriterionHtmlTemplate<T>(this HtmlHelper helper, string nameTemplate)
+        public static MvcHtmlString CriterionHtmlTemplate<T>(this HtmlHelper helper, string nameTemplate) where T : class
         {
             ActiveUrl(helper);
 
             var res = MapCriterion<T>.RenderingPartPage(nameTemplate);
-            return res; //MvcHtmlString.Create(res);
+            return MvcHtmlString.Create(res);
         }
 
 
@@ -68,7 +68,7 @@ namespace CriterionMore
         /// <param name="expression">вырадение свойства типа ( bvody=>body.id)</param>
         /// <typeparam name="T">Целевой тип</typeparam>
         /// <returns>Разметка HTML включая Jscript</returns>
-        public static string Criterion<T>(this HtmlHelper helper, Expression<Func<T, object>> expression)
+        public static MvcHtmlString Criterion<T>(this HtmlHelper helper, Expression<Func<T, object>> expression) where T : class
         {
             ActiveUrl(helper);
 
@@ -82,10 +82,10 @@ namespace CriterionMore
             if (key == null)
             {
                 res= String.Concat(res, String.Format("<script type=\"text/javascript\">{0}</script>", Resources.Base));
-                res = MapCriterion<T>.AddinHtml(res, typeof(T));
+                res = MapCriterion<T>.AddinHtml(res);
                 helper.ViewData["assa312312assa"] = 1;
             }
-            return res;
+            return MvcHtmlString.Create(res);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace CriterionMore
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetExpression<T>()
+        public static Expression<Func<T, bool>> GetExpression<T>() where T : class
         {
             var s = HttpContext.Current.Request.Form[NameType];
             if (s == null) return null;
@@ -108,7 +108,7 @@ namespace CriterionMore
         /// <param name="collection">Коллекция значений Forms с клиента</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetExpression<T>(FormCollection collection)
+        public static Expression<Func<T, bool>> GetExpression<T>(FormCollection collection) where T : class
         {
        
             var exp =
@@ -116,7 +116,7 @@ namespace CriterionMore
             return exp;
         }
 
-        private static string GetNamePropery<T>(Expression<Func<T, object>> expression)
+        private static string GetNamePropery<T>(Expression<Func<T, object>> expression) where T : class
         {
             var body = expression.Body as MemberExpression ??  ((UnaryExpression)expression.Body).Operand as MemberExpression;
                      

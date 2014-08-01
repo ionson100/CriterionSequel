@@ -98,17 +98,17 @@
  
     <div>
 
-        @* @Html.Raw(Html.CriterionHtmlTemplate<Body>())*@
+     @*    @(Html.CriterionHtmlTemplate<Body>())
 
-      @*@Html.Raw(@Html.CriterionHtmlTemplate<Body>("~/TemplateCriterion/Body2.html"))*@
+      @(@Html.CriterionHtmlTemplate<Body>("~/TemplateCriterion/Body2.html"))*@
 
 
-        @Html.Raw(Html.Criterion<Body>(body => body.Name))
-        @Html.Raw(Html.Criterion<Body>(body => body.MadeIn))
-        @Html.Raw(Html.Criterion<Body>(body => body.DateTimeBody))
-        @Html.Raw(Html.Criterion<Body>(body => body.Price))
-        @Html.Raw(Html.Criterion<Body>(body => body.CheckBox))
-        @Html.Raw(Html.Criterion<Body>(body => body.Radio))
+        @(Html.Criterion<Body>(body => body.Name))
+        @(Html.Criterion<Body>(body => body.MadeIn))
+        @(Html.Criterion<Body>(body => body.DateTimeBody))
+        @(Html.Criterion<Body>(body => body.Price))
+        @(Html.Criterion<Body>(body => body.CheckBox))
+        @(Html.Criterion<Body>(body => body.Radio))
 
 
     </div>

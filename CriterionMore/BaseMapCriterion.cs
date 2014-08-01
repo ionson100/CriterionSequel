@@ -33,7 +33,7 @@ namespace CriterionMore
     /// <summary>
     /// Тип, объект которого глобально привязывается к целевому типу
     /// </summary>
-    public static class MapCriterion<T>
+    public static class MapCriterion<T> where T : class
     {
         private static readonly Lazy<List<CriterionBaseAttribute>> BaseAttributes = new Lazy<List<CriterionBaseAttribute>>(
             () =>
@@ -62,10 +62,10 @@ namespace CriterionMore
                 return list;
             }, LazyThreadSafetyMode.PublicationOnly);
        
-        private static Lazy<List<GroupItem>> ItemsNameList = new Lazy<List<GroupItem>>(() => PathTemplate == null ? null : InnerTenplateList(HtmlPageDirty.Value, typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        private static Lazy<List<GroupItem>> ItemsNameList = new Lazy<List<GroupItem>>(() => PathTemplate == null ? null : InnerTenplateList(HtmlPageDirty.Value), LazyThreadSafetyMode.PublicationOnly);
         //private readonly Type _type;
 
-        private static Lazy<string> HtmlPageDirty = new Lazy<string>(() => PathTemplate == null ? "" : InnerHtmlPageDirty(PathTemplate.Value, typeof(T)), LazyThreadSafetyMode.PublicationOnly
+        private static Lazy<string> HtmlPageDirty = new Lazy<string>(() => PathTemplate == null ? "" : InnerHtmlPageDirty(PathTemplate.Value), LazyThreadSafetyMode.PublicationOnly
             );
 
 
@@ -90,10 +90,9 @@ namespace CriterionMore
         /// Получение грязной разметки замещая включения
         /// </summary>
         /// <param name="pathTemplate">Путь для файла шаблонв</param>
-        /// <param name="type">Целевой тип</param>
         /// <returns></returns>
 
-        internal static string InnerHtmlPageDirty(string pathTemplate, Type type)
+        internal static string InnerHtmlPageDirty(string pathTemplate)
         {
             string htmlpatch;
             try
@@ -102,7 +101,7 @@ namespace CriterionMore
             }
             catch (Exception ex)
             {
-                throw new Exception("Возможно не правильно указан url путь к шаблону  а атрибуте CriterionTemplateAttribute у типа:" + type.Name + " - " + ex);
+                throw new Exception("Возможно не правильно указан url путь к шаблону  а атрибуте CriterionTemplateAttribute у типа:" + typeof(T).Name + " - " + ex);
             }
 
             return htmlpatch;
@@ -112,7 +111,7 @@ namespace CriterionMore
 
 
 
-        private static List<GroupItem> InnerTenplateList(string htmlDirti, Type type)
+        private static List<GroupItem> InnerTenplateList(string htmlDirti)
         {
             var list = new List<GroupItem>();
             var items = new Regex("#(.*)#").Matches(htmlDirti);
@@ -121,7 +120,7 @@ namespace CriterionMore
                 var val = items[i].Groups[1].Value;
                 if (list.Any(a => a.FirstName == val))
                 {
-                    throw new ArgumentException(string.Format("В шаблоне: {0} типа,  оказались дублирующие значения: {1}", type.FullName, val));
+                    throw new ArgumentException(string.Format("В шаблоне: {0} типа,  оказались дублирующие значения: {1}", typeof(T).FullName, val));
                 }
 
                 list.Add(new GroupItem(val.ToLower(), items[i].Groups[0].Value));
@@ -138,13 +137,13 @@ namespace CriterionMore
         {
             if (string.IsNullOrWhiteSpace(urlTemplate))
             {
-                return InnerRenderingPartPage(HtmlPageDirty.Value, BaseAttributes.Value, ItemsNameList.Value, typeof(T), false);
+                return InnerRenderingPartPage(HtmlPageDirty.Value, BaseAttributes.Value, ItemsNameList.Value,  false);
             }
 
             var path = HttpContext.Current.Server.MapPath(urlTemplate);
-            var htmlPageDirty = InnerHtmlPageDirty(path, typeof(T));
-            var itemsNameList = InnerTenplateList(htmlPageDirty, typeof(T));
-            return InnerRenderingPartPage(htmlPageDirty, BaseAttributes.Value, itemsNameList, typeof(T), false);
+            var htmlPageDirty = InnerHtmlPageDirty(path);
+            var itemsNameList = InnerTenplateList(htmlPageDirty);
+            return InnerRenderingPartPage(htmlPageDirty, BaseAttributes.Value, itemsNameList,  false);
         }
 
         /// <summary>
@@ -155,18 +154,16 @@ namespace CriterionMore
         /// <returns></returns>
         internal static string RenderingPartViewRazor(HtmlHelper helper, string htmlPageDirty)
         {
-            var itemsNameList = InnerTenplateList(htmlPageDirty, typeof(T));
-            return InnerRenderingPartPage(htmlPageDirty, BaseAttributes.Value, itemsNameList, typeof(T), true);
+            var itemsNameList = InnerTenplateList(htmlPageDirty);
+            return InnerRenderingPartPage(htmlPageDirty, BaseAttributes.Value, itemsNameList,  true);
         }
 
 
-
-
-        private static string InnerRenderingPartPage(string htmlPageDirty, List<CriterionBaseAttribute> baseAttributes, IEnumerable<GroupItem> itemsNameList, Type type, bool isOne)
+        private static string InnerRenderingPartPage(string htmlPageDirty, List<CriterionBaseAttribute> baseAttributes, IEnumerable<GroupItem> itemsNameList,  bool isOne)
         {
             if (itemsNameList == null)
             {
-                throw new Exception(string.Format("ВОЗМОЖНО: для типа {0} не определен атрибут CriterionTemplateAttribute  с url шаблоном", type.Name));
+                throw new Exception(string.Format("ВОЗМОЖНО: для типа {0} не определен атрибут CriterionTemplateAttribute  с url шаблоном", typeof(T).Name));
             }
             var res = htmlPageDirty;
             var forms = HttpContext.Current.Request.Form;
@@ -228,7 +225,7 @@ namespace CriterionMore
             {
                 res = RenameScripts(res);
 
-                var finishres = AddinHtml(res, type);
+                var finishres = AddinHtml(res);
 
                 return finishres;
             }
@@ -236,13 +233,12 @@ namespace CriterionMore
         }
 
 
-
-
-        internal static string AddinHtml(string res, Type type)
+        internal static string AddinHtml(string res)
         {
-            return string.Concat(res, "<input   value=\"" + type.AssemblyQualifiedName + "\" name=\"" + CriterionActivator.NameType + "\" type=\"hidden\" />" +
+            return string.Concat(res, "<input   value=\"" + typeof(T).AssemblyQualifiedName + "\" name=\"" + CriterionActivator.NameType + "\" type=\"hidden\" />" +
                                      "<div id=\"dialog\"></div> ");//
         }
+
 
         private static string RenameScripts(string res)
         {
