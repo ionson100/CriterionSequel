@@ -1,0 +1,40 @@
+﻿<script type="text/javascript">
+    $(function() {
+        $('##id#slider').slider({
+            min: #min#, max: #max#, step: #step#,range: true, values: [#value1#, #value2#], slide: function (event, ui) {
+                $('##id#1').val(ui.values[0]);//2
+                $('##id#2').val(ui.values[1]);//1
+            }, change: function (event, ui) {
+                $('##id#').val(ui.values);//1
+            }
+        });
+    });
+</script>
+<div class="item cr">
+    <table style="width: 100%; border: 0" class="slidertable">
+        <tr>
+            <td colspan="2" >
+                <div class="labellist">
+        <div style="float:left;width: 90%"> #name#</div> 
+        <div style="float:left;text-align: center;width: 10%; ">#help#</div>   
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="#id#slider"  class="slider cr"></div>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: left">
+                <input id="#id#1" type="text" readonly="readonly" name="#id#1" data-def="#min#" class="slidertext icr" value="#value1#" />
+            </td>
+            <td style="text-align: right">
+                <input id="#id#2" readonly="readonly" type="text"  name="#id#2" data-def="#max#" class="slidertext icr" value="#value2#" />
+                <input id="#id#" data-criterion="1" name="#id#" value="#formvalue#" #atr# type="hidden" />
+            </td>
+            
+        </tr>
+    </table>
+
+</div>

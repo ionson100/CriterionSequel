@@ -1,0 +1,122 @@
+﻿@model TestCriterion.Controllers.TestModel
+@using CriterionMore
+@using TestCriterion.CriterionModel
+
+
+<script src="../../Scripts/jquery-1.7.1.min.js"></script>
+<script src="../../Scripts/jquery-ui-1.8.20.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/excite-bike/jquery-ui.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+    .betweendate {
+        width: 50px;
+    }
+
+    .slidertext {
+        width: 50px;
+    }
+
+    .list {
+        width: 130px;
+    }
+
+    .dropdown {
+        width: 130px;
+    }
+
+    .labellist {
+        font-style: italic;
+        color: blue;
+    }
+
+    .item {
+        background-color: cadetblue;
+        width: 150px;
+        padding: 10px;
+    }
+
+    .bodys {
+        width: 180px;
+        padding: 10px;
+        background-color: darkgray;
+    }
+</style>
+<script type="text/javascript">
+
+    $(function () {
+        $(".betweendate").datepicker({ dateFormat: "yy-mm-dd" });
+        $("#dialog").dialog({ autoOpen: false, modal: true, title: "Справка:", height: 400, width: 500 });
+
+
+    });
+
+    function postAjax() {
+        $("#res").empty();
+        $.post("/Home/Criterion/1", { 'form': $('[data-criterion = 1]').serialize(), 'type': $('[name = nametypecriterion]').val() }).done(function (data) {
+            $("#res").append(data);
+        });
+
+    }
+
+    function clearAll() {
+        $('.slidertext').each(function () {
+            $(this).val($(this).attr('data-def'));
+        });
+        $('[data-criterion = 1]').each(function () {
+            switch (this.type) {
+                case 'hidden':
+                case 'select-multiple':
+                case 'select-one':
+                case 'text':
+                case 'textarea':
+                    $(this).val('');
+                    break;
+                case 'checkbox':
+                case 'radio':
+                    this.checked = false;
+            }
+        });
+    }
+
+</script>
+
+@using (Html.BeginForm())
+{
+    
+    <br />
+    <div id="res">
+        @Html.DisplayTextFor(a => a.Tes)
+    </div>
+
+    <br />
+    <input id="Button3" type="button" value="ClearAll" onclick="clearAll()" />
+    <input id="Button1" type="button" value="Ajax" onclick="postAjax()" />
+    <input id="Button12" type="submit" value="Post" />
+    <br />
+    <br />
+
+    
+ 
+    <div>
+
+         @Html.CriterionHtmlTemplate(typeof(Body))
+
+        @* @Html.CriterionHtmlTemplate("~/TemplateCriterion/Body2.html",typeof(Body))*@
+
+
+        @*@Html.Raw(Html.Criterion<Body>(body => body.Name))
+        @Html.Raw(Html.Criterion<Body>(body => body.MadeIn))
+        @Html.Raw(Html.Criterion<Body>(body => body.DateTimeBody))
+        @Html.Raw(Html.Criterion<Body>(body => body.Price))
+        @Html.Raw(Html.Criterion<Body>(body => body.CheckBox))
+        @Html.Raw(Html.Criterion<Body>(body => body.Radio))*@
+
+
+    </div>
+    
+    
+    
+}
+
+
+
+

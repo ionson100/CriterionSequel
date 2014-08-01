@@ -1,0 +1,29 @@
+﻿<script type="text/javascript">
+    $(function() {
+        $("##id#").autocomplete({
+            source: function(request, response) {
+                var name = $("##id#").val();
+                $.get("#url#" + name, function(data) {
+
+                    response($.map($.parseJSON(data), function(item) {
+                        return { label: item };
+                    }));
+                });
+            },
+            minLength: #minlength#,
+            delay: #delay#
+        });
+    });
+   
+</script>
+
+<div class="item cr">
+    <div class="labellist">
+           <div style="float:left;width: 90%"> #name#</div> 
+        <div style="float:left;text-align: center;width: 10%; ">#help#</div>   
+    </div>
+    <div class="autocomplete icr">
+        <input id="#id#" class="autotext" data-criterion="1" name="#id#" value="#value#" type="text" />
+
+    </div>
+</div>
