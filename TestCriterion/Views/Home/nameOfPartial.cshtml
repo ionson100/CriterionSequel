@@ -1,0 +1,10 @@
+﻿@using CriterionMore
+@using TestCriterion.CriterionModel
+@model TestCriterion.Controllers.TestModel
+@{
+    Layout = null;
+}
+
+@(Html.Criterion<Body>(body => body.CheckBox))
+@(Html.Criterion<Body>(body => body.Radio))
+@(Html.Criterion<Body>(body => body.Drop))

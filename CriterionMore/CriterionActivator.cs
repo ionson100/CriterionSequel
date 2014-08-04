@@ -2,10 +2,34 @@
 using System.Linq.Expressions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
+using CriterionMore;
 using CriterionMore.Properties;
 
+[assembly: PreApplicationStartMethod(typeof(PreApplicationStart), "Start")]
 namespace CriterionMore
 {
+
+    /// <summary>
+    /// Add rout class
+    /// </summary>
+    public static class PreApplicationStart
+    {
+        const string Namerouter = "CriterionHelpText";
+        private const string UrlPouter = "ss/{controller}/{action}/{id}";
+
+
+        /// <summary>
+        /// Add Rout method
+        /// </summary>
+        public static void Start()
+        {
+            RouteTable.Routes.MapRoute(Namerouter, UrlPouter,
+                        namespaces: new[] { "CriterionMore" },
+                        defaults: new { controller = "Help", action = "Index", id = UrlParameter.Optional });
+
+        }
+    }
     /// <summary>
     /// 
     /// </summary>
@@ -15,21 +39,13 @@ namespace CriterionMore
         /// <summary>
         ///  Имя атрибута [name] для скрытого поля
         /// </summary>
-        public const string NameType = "nametypecriterion";
-        private const string UrlPouter = "ss/{controller}/{action}/{id}";
-        internal static bool KeyAddUrl;
+
+        internal const string NameType = "nametypecriterion";
 
 
-        private static void ActiveUrl(HtmlHelper helper)
-        {
-            if (!KeyAddUrl)
-            {
-                helper.RouteCollection.MapRoute("CriterionHelpText", UrlPouter,
-                                            namespaces: new[] { "CriterionMore" },
-                                            defaults: new { controller = "Help", action = "Index", id = UrlParameter.Optional });
-                KeyAddUrl = true;
-            }
-        }
+
+
+       
 
 
 
@@ -40,10 +56,8 @@ namespace CriterionMore
         /// <returns></returns>
         public static MvcHtmlString CriterionHtmlTemplate<T>(this HtmlHelper helper) where T : class
         {
-            ActiveUrl(helper);
-
             var res = MapCriterion<T>.RenderingPartPage();
-            return  MvcHtmlString.Create(res);
+            return MvcHtmlString.Create(res);
         }
 
         /// <summary>
@@ -54,8 +68,6 @@ namespace CriterionMore
         /// <returns></returns>
         public static MvcHtmlString CriterionHtmlTemplate<T>(this HtmlHelper helper, string nameTemplate) where T : class
         {
-            ActiveUrl(helper);
-
             var res = MapCriterion<T>.RenderingPartPage(nameTemplate);
             return MvcHtmlString.Create(res);
         }
@@ -70,18 +82,14 @@ namespace CriterionMore
         /// <returns>Разметка HTML включая Jscript</returns>
         public static MvcHtmlString Criterion<T>(this HtmlHelper helper, Expression<Func<T, object>> expression) where T : class
         {
-            ActiveUrl(helper);
-
-            string name = GetNamePropery(expression);
-
-          
+            var name = GetNamePropery(expression);
             var dirtyHtml = MapCriterion<T>.GetIdHtml(name);
 
             var res = MapCriterion<T>.RenderingPartViewRazor(helper, dirtyHtml);
             var key = helper.ViewData["assa312312assa"];
             if (key == null)
             {
-                res= String.Concat(res, String.Format("<script type=\"text/javascript\">{0}</script>", Resources.Base));
+                res = String.Concat(res, String.Format("<script type=\"text/javascript\">{0}</script>", Resources.Base));
                 res = MapCriterion<T>.AddinHtml(res);
                 helper.ViewData["assa312312assa"] = 1;
             }
@@ -110,7 +118,7 @@ namespace CriterionMore
         /// <returns></returns>
         public static Expression<Func<T, bool>> GetExpression<T>(FormCollection collection) where T : class
         {
-       
+
             var exp =
                  MapCriterion<T>.GetExpressions(collection);
             return exp;
@@ -118,9 +126,9 @@ namespace CriterionMore
 
         private static string GetNamePropery<T>(Expression<Func<T, object>> expression) where T : class
         {
-            var body = expression.Body as MemberExpression ??  ((UnaryExpression)expression.Body).Operand as MemberExpression;
-                     
-            if (body != null) return  body.Member.Name;
+            var body = expression.Body as MemberExpression ?? ((UnaryExpression)expression.Body).Operand as MemberExpression;
+
+            if (body != null) return body.Member.Name;
             throw new Exception("Не могу получить значение  имя свойзсва из выражения");
         }
 
@@ -146,6 +154,6 @@ namespace CriterionMore
         {
             TypeHelp = type;
         }
-       
+
     }
 }

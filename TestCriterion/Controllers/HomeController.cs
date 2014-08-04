@@ -18,13 +18,13 @@ namespace TestCriterion.Controllers
     }
     public class HomeController : Controller
     {
-        static readonly List<Body> List = new List<Body>() { 
-            new Body { Radio=null,Price=500,MadeIn = null, CheckBox = null, Drop = 1, Name = "ion", DateTimeBody = DateTime.Now .AddDays(100) },
-            new Body { Radio=1,Price=600,MadeIn = 1, CheckBox = 1, Drop = 1, Name = "ionson", DateTimeBody = DateTime.Now .AddDays(50) },
-            new Body { Radio=3,Price=700,MadeIn =3, CheckBox = 3, Drop = 2, Name = "ionic", DateTimeBody = DateTime.Now .AddDays(10) },
-            new Body { Radio=2,Price=800,MadeIn = 4, CheckBox = 2, Drop = 3, Name = "ionionson", DateTimeBody = DateTime.Now .AddDays(1) },
-            new Body { Radio=4,Price=900,MadeIn = 1, CheckBox = 2, Drop = 4, Name = "ionerr", DateTimeBody = DateTime.Now .AddDays(100) },
-            new Body { Radio=1,Price=1000,MadeIn = 2, CheckBox = 2, Drop = 5, Name = "iontt", DateTimeBody = DateTime.Now ,MyControl = "ion"}
+        static readonly List<Body> List = new List<Body>() {                                               
+            new Body { Radio=null,Price=500, MadeIn = null, CheckBox = null, Drop = 1, Name = "ion",       DateTimeBody = DateTime.Now .AddDays(100) },
+            new Body { Radio=1,   Price=600, MadeIn = 1,    CheckBox = 1,    Drop = 1, Name = "ionson",    DateTimeBody = DateTime.Now .AddDays(50) },
+            new Body { Radio=3,   Price=700, MadeIn =3,     CheckBox = 3,    Drop = 2, Name = "ionic",     DateTimeBody = DateTime.Now .AddDays(10) },
+            new Body { Radio=2,   Price=800, MadeIn = 2,    CheckBox = 2,    Drop = 3, Name = "ionionson", DateTimeBody = DateTime.Now .AddDays(1) },
+            new Body { Radio=2,   Price=900, MadeIn = 1,    CheckBox = 2,    Drop = 2, Name = "ionerr",    DateTimeBody = DateTime.Now .AddDays(100) },
+            new Body { Radio=1,   Price=1000,MadeIn = 2,    CheckBox = 2,    Drop = 5, Name = "iontt",     DateTimeBody = DateTime.Now ,MyControl = "ion"}
         };
 
 

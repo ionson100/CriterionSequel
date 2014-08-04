@@ -107,8 +107,8 @@
         @(Html.Criterion<Body>(body => body.MadeIn))
         @(Html.Criterion<Body>(body => body.DateTimeBody))
         @(Html.Criterion<Body>(body => body.Price))
-        @(Html.Criterion<Body>(body => body.CheckBox))
-        @(Html.Criterion<Body>(body => body.Radio))
+        @Html.Partial("nameOfPartial", Model)
+      
 
 
     </div>

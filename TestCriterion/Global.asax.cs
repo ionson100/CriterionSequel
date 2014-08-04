@@ -7,9 +7,13 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using CriterionMore;
+using TestCriterion;
+
+
 
 namespace TestCriterion
 {
+
     // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
     // visit http://go.microsoft.com/?LinkId=9394801
 
@@ -35,6 +39,7 @@ namespace TestCriterion
         protected void Application_Start()
         {
             CriterionActivator.SetTypeHelp(typeof(Helper));
+            //CriterionActivator.SetUrlImageHelp("/help.png");
 
 
             AreaRegistration.RegisterAllAreas();

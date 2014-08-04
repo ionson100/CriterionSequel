@@ -114,6 +114,7 @@
   <ItemGroup>
     <Content Include="Dynamic Expressions.html" />
     <Content Include="Global.asax" />
+    <Content Include="help.png" />
     <Content Include="Scripts\jquery-1.7.1.min.js" />
     <Content Include="Scripts\jquery-ui-1.8.20.min.js" />
     <Content Include="TemplateCriterion\Body.html" />
@@ -129,7 +130,9 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Web.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Views\Home\nameOfPartial.cshtml" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>
