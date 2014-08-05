@@ -16,6 +16,7 @@ namespace CriterionMore
     /// </summary>
     public static class PreApplicationStart
     {
+      
         const string Namerouter = "CriterionHelpText";
         private const string UrlPouter = "ss/{controller}/{action}/{id}";
 

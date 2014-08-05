@@ -37,6 +37,7 @@ namespace CriterionMore
     /// </summary>
     public static class MapCriterion<T> where T : class
     {
+        internal const string OrderBy = "criterion-orderby";
         private static readonly Lazy<List<CriterionBaseAttribute>> BaseAttributes = new Lazy<List<CriterionBaseAttribute>>(
             () =>
             {
@@ -815,7 +816,7 @@ namespace CriterionMore
         {
             const string row = "<option  value=\"#value#\" #select# >#key#</option>";
             var sb = new StringBuilder();
-            string formvalue = collection["criterion-orderby"];
+            string formvalue = collection[OrderBy];
             foreach (var orderBy in orderBys)
             {
                 string[] formvalues = null;
@@ -833,7 +834,8 @@ namespace CriterionMore
 
             return Resources.OrderBy
                 .Replace("#name#", name)
-                .Replace("#option#", sb.ToString());
+                .Replace("#option#", sb.ToString())
+                .Replace("#orderby#",OrderBy);
         }
 
         private static bool IsSelectOrderBu(string nameproperty, IEnumerable<string> formvalues,bool isselect)
@@ -864,7 +866,7 @@ namespace CriterionMore
 
         internal static Expression<Func<T, object>> GetExpressionOrderBy(FormCollection collection)
         {
-            var formvalue = collection["criterion-orderby"];
+            var formvalue = collection[OrderBy];
             if (formvalue == null) return null;
             var formvalues = formvalue.Split(',');
            

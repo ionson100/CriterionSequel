@@ -105,7 +105,7 @@
         
         
         @(Html.CriterionOrderBy<Body>("Сортировать по :",
-        new OrderBy<Body>{Name = "По дате поступления",Expression = body => body.DateTimeBody,IsSelect = true}
+         new OrderBy<Body>{Name = "По дате поступления",Expression = body => body.DateTimeBody,IsSelect = true}
         ,new OrderBy<Body>{Name = "По производителю",Expression = body => body.MadeIn}))
 
 
