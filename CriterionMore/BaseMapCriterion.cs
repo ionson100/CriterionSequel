@@ -11,6 +11,8 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using CriterionMore.Attributes;
+using CriterionMore.Properties;
+using DynamicExpression = System.Linq.Dynamic.DynamicExpression;
 
 
 namespace CriterionMore
@@ -45,7 +47,7 @@ namespace CriterionMore
                     var i = propertyInfo.GetCustomAttributes(typeof(CriterionBaseAttribute), true);
                     if (!i.Any()) continue;
                     var ii = (CriterionBaseAttribute)i.Single();
-                    if (string.IsNullOrWhiteSpace(ii.Id))
+                    if (String.IsNullOrWhiteSpace(ii.Id))
                     {
                         ii.Id = propertyInfo.Name.ToLower();
                     }
@@ -61,7 +63,7 @@ namespace CriterionMore
                 }
                 return list;
             }, LazyThreadSafetyMode.PublicationOnly);
-       
+
         private static Lazy<List<GroupItem>> ItemsNameList = new Lazy<List<GroupItem>>(() => PathTemplate == null ? null : InnerTenplateList(HtmlPageDirty.Value), LazyThreadSafetyMode.PublicationOnly);
         //private readonly Type _type;
 
@@ -74,7 +76,7 @@ namespace CriterionMore
         private static readonly Lazy<string> PathTemplate = new Lazy<string>(() =>
                                                                     {
                                                                         var t = typeof(T).GetCustomAttributes(typeof(CriterionTemplateAttribute), false);
-                                                                        return t.Any() ? HttpContext.Current.Server.MapPath(((CriterionTemplateAttribute)t.Single()).Url) : string.Empty;
+                                                                        return t.Any() ? HttpContext.Current.Server.MapPath(((CriterionTemplateAttribute)t.Single()).Url) : String.Empty;
                                                                     }, LazyThreadSafetyMode.PublicationOnly);
 
 
@@ -82,7 +84,7 @@ namespace CriterionMore
         internal static string GetIdHtml(string properyName)
         {
             var tt = BaseAttributes.Value.Where(a => a.PropertyInfo.Name == properyName).Select(s => s.Id).SingleOrDefault();
-            return tt == null ? "" : string.Format("#{0}#", tt);
+            return tt == null ? "" : String.Format("#{0}#", tt);
         }
 
 
@@ -120,7 +122,7 @@ namespace CriterionMore
                 var val = items[i].Groups[1].Value;
                 if (list.Any(a => a.FirstName == val))
                 {
-                    throw new ArgumentException(string.Format("В шаблоне: {0} типа,  оказались дублирующие значения: {1}", typeof(T).FullName, val));
+                    throw new ArgumentException(String.Format("В шаблоне: {0} типа,  оказались дублирующие значения: {1}", typeof(T).FullName, val));
                 }
 
                 list.Add(new GroupItem(val.ToLower(), items[i].Groups[0].Value));
@@ -135,15 +137,15 @@ namespace CriterionMore
         /// <returns></returns>
         internal static string RenderingPartPage(string urlTemplate = null)
         {
-            if (string.IsNullOrWhiteSpace(urlTemplate))
+            if (String.IsNullOrWhiteSpace(urlTemplate))
             {
-                return InnerRenderingPartPage(HtmlPageDirty.Value, BaseAttributes.Value, ItemsNameList.Value,  false);
+                return InnerRenderingPartPage(HtmlPageDirty.Value, BaseAttributes.Value, ItemsNameList.Value, false);
             }
 
             var path = HttpContext.Current.Server.MapPath(urlTemplate);
             var htmlPageDirty = InnerHtmlPageDirty(path);
             var itemsNameList = InnerTenplateList(htmlPageDirty);
-            return InnerRenderingPartPage(htmlPageDirty, BaseAttributes.Value, itemsNameList,  false);
+            return InnerRenderingPartPage(htmlPageDirty, BaseAttributes.Value, itemsNameList, false);
         }
 
         /// <summary>
@@ -155,15 +157,15 @@ namespace CriterionMore
         internal static string RenderingPartViewRazor(HtmlHelper helper, string htmlPageDirty)
         {
             var itemsNameList = InnerTenplateList(htmlPageDirty);
-            return InnerRenderingPartPage(htmlPageDirty, BaseAttributes.Value, itemsNameList,  true);
+            return InnerRenderingPartPage(htmlPageDirty, BaseAttributes.Value, itemsNameList, true);
         }
 
 
-        private static string InnerRenderingPartPage(string htmlPageDirty, List<CriterionBaseAttribute> baseAttributes, IEnumerable<GroupItem> itemsNameList,  bool isOne)
+        private static string InnerRenderingPartPage(string htmlPageDirty, List<CriterionBaseAttribute> baseAttributes, IEnumerable<GroupItem> itemsNameList, bool isOne)
         {
             if (itemsNameList == null)
             {
-                throw new Exception(string.Format("ВОЗМОЖНО: для типа {0} не определен атрибут CriterionTemplateAttribute  с url шаблоном", typeof(T).Name));
+                throw new Exception(String.Format("ВОЗМОЖНО: для типа {0} не определен атрибут CriterionTemplateAttribute  с url шаблоном", typeof(T).Name));
             }
             var res = htmlPageDirty;
             var forms = HttpContext.Current.Request.Form;
@@ -235,14 +237,14 @@ namespace CriterionMore
 
         internal static string AddinHtml(string res)
         {
-            return string.Concat(res, "<input   value=\"" + typeof(T).AssemblyQualifiedName + "\" name=\"" + CriterionActivator.NameType + "\" type=\"hidden\" />" +
+            return String.Concat(res, "<input   value=\"" + typeof(T).AssemblyQualifiedName + "\" name=\"" + CriterionActivator.NameType + "\" type=\"hidden\" />" +
                                      "<div id=\"dialog\"></div> ");//
         }
 
 
         private static string RenameScripts(string res)
         {
-            var sb = new StringBuilder(Properties.Resources.Base);
+            var sb = new StringBuilder(Resources.Base);
             const string regtemplate = "<script\\b[^>]*>([\\s\\S]*?)<\\/script>";
             var col = Regex.Matches(res, regtemplate, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             foreach (Match val in col)
@@ -255,7 +257,7 @@ namespace CriterionMore
             var com=new JavaScriptCompressor();
             str= com.Compress(sb.ToString());
 #endif
-            return "<script type=\"text/javascript\">" + str + "</script>" + Regex.Replace(res, regtemplate, string.Empty);
+            return "<script type=\"text/javascript\">" + str + "</script>" + Regex.Replace(res, regtemplate, String.Empty);
         }
 
 
@@ -265,7 +267,7 @@ namespace CriterionMore
         {
             if (atr.MyType == null)
             {
-                throw new Exception(string.Format("У свойства {0}  в атрибуте:CriterionMyControlAttribute не определено сойство MyType, оно отвечает за генерацию списка ",
+                throw new Exception(String.Format("У свойства {0}  в атрибуте:CriterionMyControlAttribute не определено сойство MyType, оно отвечает за генерацию списка ",
                     atr.PropertyInfo.Name));
             }
             var instans = Activator.CreateInstance(atr.MyType);
@@ -276,12 +278,12 @@ namespace CriterionMore
         private static string RenderingAutoComplete(CriterionAutoCompleteAttribute atr, string formValue)
         {
             return
-                Properties.Resources.AutoComplete.Replace("#id#", atr.Id)
+                Resources.AutoComplete.Replace("#id#", atr.Id)
                     .Replace("#name#", atr.Name)
                     .Replace("#url#", atr.Url)
                     .Replace("#minlength#", atr.MinLength.ToString(CultureInfo.InvariantCulture))
                     .Replace("#delay#", atr.Delay.ToString(CultureInfo.InvariantCulture))
-                    .Replace("#value#", string.IsNullOrWhiteSpace(formValue) ? "" : formValue)
+                    .Replace("#value#", String.IsNullOrWhiteSpace(formValue) ? "" : formValue)
                     .Replace("#help#", GetHelpImage(atr.Id));
         }
 
@@ -289,7 +291,7 @@ namespace CriterionMore
         {
             IEnumerable<CriterionHtmlAttributeAttribute> attributes = atrBaseAttribute.HtmlAttributes;
             var sb = new StringBuilder();
-            if (!string.IsNullOrWhiteSpace(atrBaseAttribute.Description))
+            if (!String.IsNullOrWhiteSpace(atrBaseAttribute.Description))
             {
                 sb.AppendFormat(" title = \"{0}\"", atrBaseAttribute.Description);
             }
@@ -303,15 +305,15 @@ namespace CriterionMore
 
         private static string RenderingSlider(CriterionSliderAttribute atr, string formValue)
         {
-            if (string.IsNullOrWhiteSpace(formValue))
+            if (String.IsNullOrWhiteSpace(formValue))
                 if (atr.ISliderData == null)
                 {
-                    throw new Exception(string.Format("У свойства {0}  в атрибуте:CriterionSliderAttribute не определено сойство ISliderData," +
+                    throw new Exception(String.Format("У свойства {0}  в атрибуте:CriterionSliderAttribute не определено сойство ISliderData," +
                                                       " оно отвечает за генерацию начально и конечного значения слайдера ", atr.PropertyInfo.Name));
                 }
             var selList = new List<string>();
             var instance = (ISliderData)Activator.CreateInstance(atr.ISliderData);
-            if (!string.IsNullOrWhiteSpace(formValue))
+            if (!String.IsNullOrWhiteSpace(formValue))
             {
                 selList.AddRange(formValue.Split(','));
             }
@@ -323,7 +325,7 @@ namespace CriterionMore
 
             }
 
-            var res = Properties.Resources.Slider
+            var res = Resources.Slider
                 .Replace("#name#", atr.Name)
                 .Replace("#id#", atr.Id)
                 .Replace("#max#", instance.GetMax().ToString(CultureInfo.InvariantCulture))
@@ -348,14 +350,14 @@ namespace CriterionMore
             {
                 throw new Exception("Не верный диапазон дат, значение больше 2");
             }
-            var res = Properties.Resources.Between
+            var res = Resources.Between
                 .Replace("#id#", atr.Id)
                 .Replace("#name#", atr.Name)
                 .Replace("#atr#", GetHtmlAttributes(atr))
                 .Replace("#help#", GetHelpImage(atr.Id));
             if (selList.Count < 2)
             {
-                return res.Replace("#value1#", string.Empty).Replace("#value2#", string.Empty);
+                return res.Replace("#value1#", String.Empty).Replace("#value2#", String.Empty);
             }
 
             return res
@@ -369,7 +371,7 @@ namespace CriterionMore
         {
             if (atr.IListItem == null)
             {
-                throw new Exception(string.Format("У свойства {0}  в атрибуте:CriterionDropDownAttribute не определено сойство IListItem, оно отвечает за генерацию списка ", atr.PropertyInfo.Name));
+                throw new Exception(String.Format("У свойства {0}  в атрибуте:CriterionDropDownAttribute не определено сойство IListItem, оно отвечает за генерацию списка ", atr.PropertyInfo.Name));
             }
             var itemIListItem = (IListItem)Activator.CreateInstance(atr.IListItem);
             var list = new List<string>();
@@ -383,10 +385,10 @@ namespace CriterionMore
             }
 
             var templist =
-            Properties.Resources.DropDown.
+            Resources.DropDown.
                 Replace("#id#", atr.Id).
                 Replace("#name#", atr.Name).
-                Replace("#option#", string.Join(" ", list))
+                Replace("#option#", String.Join(" ", list))
                 .Replace("#atr#", GetHtmlAttributes(atr))
                 .Replace("#help#", GetHelpImage(atr.Id));
             return templist;
@@ -396,7 +398,7 @@ namespace CriterionMore
         {
             if (atr.ListItem == null)
             {
-                throw new Exception(string.Format("У свойства {0}  в атрибуте:CriterionCheckBoxAttribute не определено сойство IListItem, оно отвечает за генерацию списка ", atr.PropertyInfo.Name));
+                throw new Exception(String.Format("У свойства {0}  в атрибуте:CriterionCheckBoxAttribute не определено сойство IListItem, оно отвечает за генерацию списка ", atr.PropertyInfo.Name));
             }
 
             var selList = new List<string>();
@@ -438,7 +440,7 @@ namespace CriterionMore
             }
             sb.Append("</table>");
 
-            var res = Properties.Resources.CheckBox
+            var res = Resources.CheckBox
                 .Replace("#name#", atr.Name)
                 .Replace("#body#", sb.ToString())
                 .Replace("#help#", GetHelpImage(atr.Id));
@@ -451,7 +453,7 @@ namespace CriterionMore
         {
             if (atr.ListItem == null)
             {
-                throw new Exception(string.Format("У свойства {0}  в атрибуте:CriterionRadioButtonAttribute не определено сойство IListItem, оно отвечает за генерацию списка ", atr.PropertyInfo.Name));
+                throw new Exception(String.Format("У свойства {0}  в атрибуте:CriterionRadioButtonAttribute не определено сойство IListItem, оно отвечает за генерацию списка ", atr.PropertyInfo.Name));
             }
             const string row = " <input type=\"radio\" name=\"#id#\" data-criterion=\"1\" class=\"radio icr\" #atr# value=\"#value#\" #checked# />#text#";//id=\"#id#\"
             var itemIListItem = (IListItem)Activator.CreateInstance(atr.ListItem);
@@ -484,7 +486,7 @@ namespace CriterionMore
             }
             sb.Append("</table>");
 
-            var res = Properties.Resources.RadioButton
+            var res = Resources.RadioButton
                 .Replace("#name#", atr.Name)
                 .Replace("#body#", sb.ToString())
                 .Replace("#help#", GetHelpImage(atr.Id));
@@ -505,7 +507,7 @@ namespace CriterionMore
 
             if (atr.IListItem == null)
             {
-                throw new Exception(string.Format("У свойства {0}  в атрибуте:CriterionListAttribute не определено сойство IListItem, оно отвечает за генерацию списка ", atr.PropertyInfo.Name));
+                throw new Exception(String.Format("У свойства {0}  в атрибуте:CriterionListAttribute не определено сойство IListItem, оно отвечает за генерацию списка ", atr.PropertyInfo.Name));
             }
             const string row = "<option  value=\"#value#\" #select# >#key#</option>";
 
@@ -520,12 +522,12 @@ namespace CriterionMore
             }
 
             var templist =
-            Properties.Resources.List.
+            Resources.List.
                 Replace("#id#", atr.Id).
                 Replace("#size#", atr.Size.ToString(CultureInfo.InvariantCulture)).
-                Replace("#multiple#", atr.IsMultiple ? "multiple=\"multiple\"" : string.Empty).
+                Replace("#multiple#", atr.IsMultiple ? "multiple=\"multiple\"" : String.Empty).
                 Replace("#name#", atr.Name).
-                Replace("#option#", string.Join(" ", list))
+                Replace("#option#", String.Join(" ", list))
                 .Replace("#atr#", GetHtmlAttributes(atr))
                 .Replace("#help#", GetHelpImage(atr.Id));
             return templist;
@@ -540,7 +542,7 @@ namespace CriterionMore
 
             if (!selectorlist.Any())
             {
-                return string.Empty;
+                return String.Empty;
             }
             if (selectorlist.Contains(value))
             {
@@ -550,7 +552,7 @@ namespace CriterionMore
             {
                 return pattern;// "selected=\"selected\"";
             }
-            return string.Empty;
+            return String.Empty;
         }
 
 
@@ -579,11 +581,11 @@ namespace CriterionMore
                         Expression<Func<T, bool>> e;
                         if (value == null)
                         {
-                            e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate.Replace("@0", "null"));
+                            e = DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate.Replace("@0", "null"));
                         }
                         else
                         {
-                            e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate, value);
+                            e = DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate, value);
                         }
 
                         innerexpr = e.Or(innerexpr);
@@ -599,11 +601,11 @@ namespace CriterionMore
                         Expression<Func<T, bool>> e;
                         if (value == null)
                         {
-                            e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate.Replace("@0", "null"));
+                            e = DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate.Replace("@0", "null"));
                         }
                         else
                         {
-                            e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate, value);
+                            e = DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate, value);
                         }
 
                         innerexpr = e.Or(innerexpr);
@@ -619,11 +621,11 @@ namespace CriterionMore
                         Expression<Func<T, bool>> e;
                         if (value == null)
                         {
-                            e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate.Replace("@0", "null"));
+                            e = DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate.Replace("@0", "null"));
                         }
                         else
                         {
-                            e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate, value);
+                            e = DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate, value);
                         }
 
                         innerexpr = e.Or(innerexpr);
@@ -638,11 +640,11 @@ namespace CriterionMore
                         Expression<Func<T, bool>> e;
                         if (value == null)
                         {
-                            e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate.Replace("@0", "null"));
+                            e = DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate.Replace("@0", "null"));
                         }
                         else
                         {
-                            e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate, value);
+                            e = DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate, value);
                         }
 
                         innerexpr = e.Or(innerexpr);
@@ -657,11 +659,11 @@ namespace CriterionMore
                         Expression<Func<T, bool>> e;
                         if (value == null)
                         {
-                            e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate.Replace("@0", "null"));
+                            e = DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate.Replace("@0", "null"));
                         }
                         else
                         {
-                            e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate, value);
+                            e = DynamicExpression.ParseLambda<T, bool>(tt.ExpressionTemplate, value);
                         }
 
                         innerexpr = e.Or(innerexpr);
@@ -674,8 +676,8 @@ namespace CriterionMore
 
                     for (var i = 0; i < kv.Value.Count; i++)
                     {
-                        var sql = string.Format(" {0} {1} @0", tt.PropertyInfo.Name, i == 0 ? ">=" : "<=");
-                        var e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(sql, kv.Value[i]);
+                        var sql = String.Format(" {0} {1} @0", tt.PropertyInfo.Name, i == 0 ? ">=" : "<=");
+                        var e = DynamicExpression.ParseLambda<T, bool>(sql, kv.Value[i]);
                         innerexpr = e.And(innerexpr);
                     }
                     expr = innerexpr.And(expr);
@@ -688,9 +690,9 @@ namespace CriterionMore
 
                     for (int i = 0; i < kv.Value.Count; i++)
                     {
-                        var sql = string.Format(" {0} {1} @0 ", tt.PropertyInfo.Name, i == 0 ? ">=" : "<=");
+                        var sql = String.Format(" {0} {1} @0 ", tt.PropertyInfo.Name, i == 0 ? ">=" : "<=");
 
-                        var e = System.Linq.Dynamic.DynamicExpression.ParseLambda<T, bool>(sql, kv.Value[i] ?? DateTime.Now);
+                        var e = DynamicExpression.ParseLambda<T, bool>(sql, kv.Value[i] ?? DateTime.Now);
                         innerexpr = e.And(innerexpr);
                     }
                     expr = innerexpr.And(expr);
@@ -741,7 +743,7 @@ namespace CriterionMore
 
                 var type = myatr.PropertyInfo.PropertyType;
 
-                if (string.IsNullOrWhiteSpace(val) || (type == typeof(DateTime) && val == "," && myatr as CriterionBetweenDateAttribute != null))
+                if (String.IsNullOrWhiteSpace(val) || (type == typeof(DateTime) && val == "," && myatr as CriterionBetweenDateAttribute != null))
                 {
                     continue;
                 }
@@ -760,7 +762,7 @@ namespace CriterionMore
                     if (type.IsGenericType && type.GetGenericArguments().Count() == 1 && type.IsValueType &&
                         type.GetGenericArguments()[0].IsValueType && Nullable.GetUnderlyingType(type) != null)
                     {
-                        if (string.IsNullOrWhiteSpace(s1)) continue;
+                        if (String.IsNullOrWhiteSpace(s1)) continue;
                         if (s1.ToLower() == "null")//string.IsNullOrWhiteSpace(s1) ||
                         {
                             list.Add(null);
@@ -775,7 +777,7 @@ namespace CriterionMore
                     }
                     else
                     {
-                        if (string.IsNullOrWhiteSpace(s1)) continue;
+                        if (String.IsNullOrWhiteSpace(s1)) continue;
                         if (s1.ToLower() == "null")//string.IsNullOrWhiteSpace(s1) ||
                         {
                             list.Add(null);
@@ -800,11 +802,85 @@ namespace CriterionMore
         {
             if (CriterionActivator.TypeHelp == null)
             {
-                return string.Empty;
+                return String.Empty;
             }
-            var img = string.Format("<img src=\"{0}\" class=\"helpcr\" style=\"cursor:pointer\" onClick=\"viewHelp('{1}')\" alt=\"?\" />",
-                string.IsNullOrWhiteSpace(CriterionActivator.UrlImage) ? "/ss/Help/Index/" + id : CriterionActivator.UrlImage, id);
+            var img = String.Format("<img src=\"{0}\" class=\"helpcr\" style=\"cursor:pointer\" onClick=\"viewHelp('{1}')\" alt=\"?\" />",
+                String.IsNullOrWhiteSpace(CriterionActivator.UrlImage) ? "/ss/Help/Index/" + id : CriterionActivator.UrlImage, id);
             return img;
         }
+
+
+
+        internal static string GetOrderByHtml(string name, OrderBy<T>[] orderBys, FormCollection collection)
+        {
+            const string row = "<option  value=\"#value#\" #select# >#key#</option>";
+            var sb = new StringBuilder();
+            string formvalue = collection["criterion-orderby"];
+            foreach (var orderBy in orderBys)
+            {
+                string[] formvalues = null;
+                string namep = GetNamePropery(orderBy.Expression);
+                if (formvalue != null)
+                {
+                    formvalues = formvalue.Split(',');
+                }
+
+
+                sb.Append(row.Replace("#value#", namep)
+                    .Replace("#key#", orderBy.Name)
+                    .Replace("#select#",IsSelectOrderBu(namep,formvalues,orderBy.IsSelect)? "selected=\"selected\"":""));
+            }
+
+            return Resources.OrderBy
+                .Replace("#name#", name)
+                .Replace("#option#", sb.ToString());
+        }
+
+        private static bool IsSelectOrderBu(string nameproperty, IEnumerable<string> formvalues,bool isselect)
+        {
+            if (formvalues == null && isselect) return true;
+            if (formvalues == null) return false;
+          
+         
+            if (formvalues.Contains(nameproperty)) return true;
+            return false;
+
+        }
+
+        internal static string GetNamePropery(Expression<Func<T, object>> expression)
+        {
+            var body = expression.Body as MemberExpression ?? ((UnaryExpression)expression.Body).Operand as MemberExpression;
+
+            if (body != null) return body.Member.Name;
+            throw new Exception("Не могу получить значение  имя свойзсва из выражения");
+        }
+
+
+        internal static Expression<Func<T, object>> GetExpressionOrderBy()
+        {
+            return GetExpressionOrderBy(new FormCollection(HttpContext.Current.Request.Form));
+        }
+
+
+        internal static Expression<Func<T, object>> GetExpressionOrderBy(FormCollection collection)
+        {
+            var formvalue = collection["criterion-orderby"];
+            if (formvalue == null) return null;
+            var formvalues = formvalue.Split(',');
+           
+            Expression<Func<T, object>> innerexpr = null;
+            foreach (var value in formvalues)
+            {
+                Expression<Func<T, object>> e;
+                if (value == null)
+                {
+                   continue;
+                }
+                e = DynamicExpression.ParseLambda<T, object>(string.Format("{0}",value));
+
+                innerexpr = e.And(innerexpr);
+            }
+           return   innerexpr;
+        } 
     }
 }

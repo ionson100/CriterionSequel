@@ -92,6 +92,7 @@
     <Content Include="Resources\AutoComplete.html" />
     <Content Include="Resources\Between.html" />
     <Content Include="Resources\CheckBox.html" />
+    <Content Include="Resources\OrderBy.html" />
     <Content Include="Resources\DropDown.html" />
     <Content Include="Resources\help.png" />
     <Content Include="Resources\List.html" />

@@ -40,9 +40,13 @@ namespace TestCriterion.Controllers
         {
             TestModel tm=new TestModel();
             var resultExpression = CriterionActivator.GetExpression<Body>();
-            if (resultExpression != null)
+
+            var exoOrderBy = CriterionActivator.GetExpressionOrderBy<Body>();
+            if (resultExpression != null&&exoOrderBy!=null)
             {
-                 var testlist = List.Where(resultExpression.Compile()).ToList();
+                 var testlist = List.Where(resultExpression.Compile()).OrderBy(exoOrderBy.Compile()).ToList();
+
+                var testlist2 = List.Where(resultExpression.Compile()).OrderBy(s => s.DateTimeBody);
                 tm.Tes = resultExpression + "<br/>___________COUNT_____________" +
                          testlist.Count();
             }
@@ -69,9 +73,10 @@ namespace TestCriterion.Controllers
             }
 
             var resultExpression = CriterionActivator.GetExpression<Body>(col);
-            if (resultExpression == null) return null;
+            var resultExpOrderBy = CriterionActivator.GetExpressionOrderBy<Body>(col);
+            if (resultExpression == null || resultExpOrderBy==null) return null;
        
-            var testlist= List.Where(resultExpression.Compile()).ToList();
+            var testlist= List.Where(resultExpression.Compile()).OrderBy(resultExpOrderBy.Compile()).ToList();
            
 
             return resultExpression+"<br/>___________COUNT_____________" +testlist.Count();

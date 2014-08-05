@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using System.Xml.Schema;
 using CriterionMore;
 using CriterionMore.Properties;
 
@@ -45,7 +46,19 @@ namespace CriterionMore
 
 
 
-       
+        /// <summary>
+        /// Выпадающий список для выбора сортировки по полям
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="name">Название блока списка</param>
+        /// <param name="orderBys">Контейнер опции для выпадающего списка</param>
+        /// <typeparam name="T">Целевой тип</typeparam>
+        /// <returns></returns>
+        public static MvcHtmlString CriterionOrderBy<T>(this HtmlHelper helper, string name, params OrderBy<T>[] orderBys) where T : class
+        {
+            var res = MapCriterion<T>.GetOrderByHtml(name, orderBys, new FormCollection(HttpContext.Current.Request.Form));
+            return MvcHtmlString.Create(res);
+        }
 
 
 
@@ -82,7 +95,7 @@ namespace CriterionMore
         /// <returns>Разметка HTML включая Jscript</returns>
         public static MvcHtmlString Criterion<T>(this HtmlHelper helper, Expression<Func<T, object>> expression) where T : class
         {
-            var name = GetNamePropery(expression);
+            var name = MapCriterion<T>.GetNamePropery(expression);
             var dirtyHtml = MapCriterion<T>.GetIdHtml(name);
 
             var res = MapCriterion<T>.RenderingPartViewRazor(helper, dirtyHtml);
@@ -110,6 +123,34 @@ namespace CriterionMore
             return exp;
         }
 
+
+        /// <summary>
+        /// Получение результирующего выражения, для подстановки в OrderBy
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static Expression<Func<T, object>> GetExpressionOrderBy<T>() where T : class
+        {
+          
+               var exp=  MapCriterion<T>.GetExpressionOrderBy();
+            return exp;
+        }
+
+        /// <summary>
+        /// Получение результирующего выражения, для подстановки в OrderBy
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static Expression<Func<T, object>> GetExpressionOrderBy<T>(FormCollection collection) where T : class
+        {
+
+            var exp = MapCriterion<T>.GetExpressionOrderBy(collection);
+            return exp;
+        }
+
+
+
+
         /// <summary>
         ///  Получение результирующего выражения, для подстановки в Where
         /// </summary>
@@ -124,13 +165,7 @@ namespace CriterionMore
             return exp;
         }
 
-        private static string GetNamePropery<T>(Expression<Func<T, object>> expression) where T : class
-        {
-            var body = expression.Body as MemberExpression ?? ((UnaryExpression)expression.Body).Operand as MemberExpression;
 
-            if (body != null) return body.Member.Name;
-            throw new Exception("Не могу получить значение  имя свойзсва из выражения");
-        }
 
         internal static string UrlImage { get; set; }
 
@@ -154,6 +189,33 @@ namespace CriterionMore
         {
             TypeHelp = type;
         }
+    }
 
+    /// <summary>
+    /// Структура контейнер для опции выпадающего списка для сортировки показа
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public struct OrderBy<T>
+    {
+
+        public OrderBy(string name, Expression<Func<T, object>> expression,bool isselect) : this()
+        {
+            Expression = expression;
+            Name = name;
+            IsSelect = isselect;
+
+        }
+        /// <summary>
+        /// Выражение поля к торому относится сортировка
+        /// </summary>
+        public Expression<Func<T, object>> Expression { get; set; }
+        /// <summary>
+        /// Название выпадающей опции
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
+        /// Выьрана ли опция при формировании
+        /// </summary>
+        public bool IsSelect { get; set; }
     }
 }

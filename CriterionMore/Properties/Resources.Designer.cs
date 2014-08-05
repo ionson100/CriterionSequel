@@ -85,7 +85,15 @@ namespace CriterionMore.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to 
+        ///function viewHelp(id) {
+        ///     $.get(&quot;/ss/help/text/&quot; + id, function(data) {
+        ///         $(&quot;#dialog&quot;).empty();
+        ///         $(&quot;#dialog&quot;).append(data);
+        ///         $(&quot;#dialog&quot;).dialog(&quot;open&quot;);
+        ///     });
+        ///};
+        ///.
         /// </summary>
         internal static string Base {
             get {
@@ -179,6 +187,24 @@ namespace CriterionMore.Properties {
         /// <summary>
         ///   Looks up a localized string similar to &lt;div class=&quot;item cr&quot;&gt;
         ///    &lt;div class=&quot;labellist&quot;&gt;
+        ///           &lt;div style=&quot;float:left;width: 90%&quot;&gt; #name#&lt;/div&gt; 
+        ///        &lt;div style=&quot;float:left;text-align: center;width: 10%; &quot;&gt;#help#&lt;/div&gt;   
+        ///    &lt;/div&gt;
+        ///      &lt;select id=&quot;#id#&quot; class=&quot;dropdown icr&quot; data-criterion=&quot;1&quot; #atr#  name=&quot;#id#&quot; &gt;
+        ///          #option#
+        ///      &lt;/select&gt;
+        /// 
+        ///&lt;/div&gt;.
+        /// </summary>
+        internal static string OrderBy {
+            get {
+                return ResourceManager.GetString("OrderBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;div class=&quot;item cr&quot;&gt;
+        ///    &lt;div class=&quot;labellist&quot;&gt;
         ///        &lt;div style=&quot;float:left;width: 90%&quot;&gt; #name#&lt;/div&gt; 
         ///        &lt;div style=&quot;float:left;text-align: center;width: 10%; &quot;&gt;#help#&lt;/div&gt;   
         ///    &lt;/div&gt;
@@ -195,9 +221,9 @@ namespace CriterionMore.Properties {
         ///   Looks up a localized string similar to &lt;script type=&quot;text/javascript&quot;&gt;
         ///    $(function() {
         ///        $(&apos;##id#slider&apos;).slider({
-        ///            min: #min#, max: #max#, step: #step#, values: [#value2#, #value1#], slide: function (event, ui) {
-        ///                $(&apos;##id#1&apos;).val(ui.values.toString().split(&apos;,&apos;)[1]);//2
-        ///                $(&apos;##id#2&apos;).val(ui.values.toString().split(&apos;,&apos;)[0]);//1
+        ///            min: #min#, max: #max#, step: #step#,range: true, values: [#value1#, #value2#], slide: function (event, ui) {
+        ///                $(&apos;##id#1&apos;).val(ui.values[0]);//2
+        ///                $(&apos;##id#2&apos;).val(ui.values[1]);//1
         ///            }, change: function (event, ui) {
         ///                $(&apos;##id#&apos;).val(ui.values);//1
         ///            }
@@ -205,7 +231,7 @@ namespace CriterionMore.Properties {
         ///    });
         ///&lt;/script&gt;
         ///&lt;div class=&quot;item cr&quot;&gt;
-        ///   [rest of string was truncated]&quot;;.
+        ///    &lt;table style=&quot;width: 100%; bor [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Slider {
             get {
