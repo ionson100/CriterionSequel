@@ -117,10 +117,7 @@ namespace CriterionMore
         /// <returns></returns>
         public static Expression<Func<T, bool>> GetExpression<T>() where T : class
         {
-            var s = HttpContext.Current.Request.Form[NameType];
-            if (s == null) return null;
-            var exp =
-                 MapCriterion<T>.GetExpressions(new FormCollection(HttpContext.Current.Request.Form));
+            var exp = MapCriterion<T>.GetExpressions();
             return exp;
         }
 
@@ -132,7 +129,6 @@ namespace CriterionMore
         /// <returns></returns>
         public static Expression<Func<T, object>> GetExpressionOrderBy<T>() where T : class
         {
-          
                var exp=  MapCriterion<T>.GetExpressionOrderBy();
             return exp;
         }
@@ -160,9 +156,7 @@ namespace CriterionMore
         /// <returns></returns>
         public static Expression<Func<T, bool>> GetExpression<T>(FormCollection collection) where T : class
         {
-
-            var exp =
-                 MapCriterion<T>.GetExpressions(collection);
+            var exp = MapCriterion<T>.GetExpressions(collection);
             return exp;
         }
 

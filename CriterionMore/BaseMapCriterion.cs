@@ -555,8 +555,15 @@ namespace CriterionMore
             }
             return String.Empty;
         }
-
-
+        /// <summary>
+        /// Получение результирующего выражения для запроса по типу Where
+        /// </summary>
+        /// <returns></returns>
+        internal static Expression<Func<T, bool>> GetExpressions()
+        {
+            var exp = GetExpressions(new FormCollection(HttpContext.Current.Request.Form));
+            return exp;
+        }
 
         /// <summary>
         /// Получение результирующего выражения для запроса по типу Where
