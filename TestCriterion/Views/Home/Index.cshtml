@@ -104,12 +104,16 @@
         
         
         
-        @(Html.CriterionOrderBy<Body>("Сортировать по :",
-         new OrderBy<Body>{Name = "По дате поступления",Expression = body => body.DateTimeBody,IsSelect = true}
+        @(Html.CriterionOrderBy<Body>("Сортировать по :"
+        ,new OrderBy<Body>{Name = "По дате поступления",Expression = body => body.DateTimeBody,IsSelect = true}
+              ,new OrderBy<Body>{Name = "По производителю",Expression = body => body.MadeIn}))
+        
+         @(Html.CriterionOrderBy<Body>("Сортировать по :"
+        ,new OrderBy<Body>{Name = "По дате поступления",Expression = body => body.DateTimeBody,IsSelect = true}
         ,new OrderBy<Body>{Name = "По производителю",Expression = body => body.MadeIn}))
 
 
-      @*  @(Html.Criterion<Body>(body => body.Name))*@
+        @*  @(Html.Criterion<Body>(body => body.Name))*@
         @(Html.Criterion<Body>(body => body.MadeIn))
         @(Html.Criterion<Body>(body => body.DateTimeBody))
         @(Html.Criterion<Body>(body => body.Price))

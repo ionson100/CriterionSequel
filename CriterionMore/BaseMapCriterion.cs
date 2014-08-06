@@ -555,10 +555,7 @@ namespace CriterionMore
             }
             return String.Empty;
         }
-        /// <summary>
-        /// Получение результирующего выражения для запроса по типу Where
-        /// </summary>
-        /// <returns></returns>
+
         internal static Expression<Func<T, bool>> GetExpressions()
         {
             var exp = GetExpressions(new FormCollection(HttpContext.Current.Request.Form));
@@ -880,13 +877,16 @@ namespace CriterionMore
             Expression<Func<T, object>> innerexpr = null;
             foreach (var value in formvalues)
             {
-                Expression<Func<T, object>> e;
                 if (value == null)
                 {
                    continue;
                 }
-                e = DynamicExpression.ParseLambda<T, object>(string.Format("{0}",value));
-
+                var e = DynamicExpression.ParseLambda<T, object>(string.Format("{0}",value));
+                if (innerexpr == null)
+                {
+                    innerexpr = e;
+                    continue;
+                }
                 innerexpr = e.And(innerexpr);
             }
            return   innerexpr;

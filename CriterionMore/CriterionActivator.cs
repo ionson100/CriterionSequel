@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using System.Xml.Schema;
 using CriterionMore;
 using CriterionMore.Properties;
 
@@ -193,6 +192,12 @@ namespace CriterionMore
     public struct OrderBy<T>
     {
 
+        /// <summary>
+        /// ctor.
+        /// </summary>
+        /// <param name="name">Текст опции</param>
+        /// <param name="expression">Выражение для  определение свойства,  по которому будет производиться сортировка</param>
+        /// <param name="isselect">Выбор опции по умолчанию</param>
         public OrderBy(string name, Expression<Func<T, object>> expression,bool isselect) : this()
         {
             Expression = expression;
